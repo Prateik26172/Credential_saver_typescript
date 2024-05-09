@@ -1,4 +1,11 @@
 import { useState } from "react";
+// import { useForm } from "react-hook-form";
+import * as yup from "yup";
+
+const UserValidation = yup.object().shape({
+  email: yup.string().email().required(),
+  password: yup.string().min(4).max(10).required(),
+});
 const EmailPasswordForm = () => {
   const [Email, setEmail] = useState<string>("");
   const [Password, setPassword] = useState<string>("");
@@ -13,18 +20,26 @@ const EmailPasswordForm = () => {
   const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
   };
-  const handleChangeBoth = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleChangeBoth = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     console.log("submitted");
-    setCredentials({ email: Email, password: Password });
-    setEmail("");
-    setPassword("");
+    try {
+      await UserValidation.validate({
+        email: Email,
+        password: Password,
+      });
+      setCredentials({ email: Email, password: Password });
+      setEmail("");
+      setPassword("");
+    } catch (error) {
+      console.error("Validation error:", error.errors);
+    }
   };
 
   return (
-    <div className="flex justify-center mt-[150px]">
+    <form className="flex justify-center mt-[150px]">
       <div className="border flex flex-col gap-4 bg-white w-[350px] h-[350px] p-9">
-        <div>
+        <div className="flex gap-10  items-center">
           <label htmlFor="Email">Email:</label>
           <input
             type="email"
@@ -34,7 +49,7 @@ const EmailPasswordForm = () => {
             className="border p-2 rounded"
           />
         </div>
-        <div>
+        <div className="flex gap-3  items-center">
           <label htmlFor="password">Password:</label>
           <input
             type="password"
@@ -58,7 +73,7 @@ const EmailPasswordForm = () => {
           <p>saved Passwords:{Credentials.password}</p>
         </div>
       </div>
-    </div>
+    </form>
   );
 };
 export default EmailPasswordForm;
